@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+
 namespace METARdecode
 {
     public class Decoder
     {
-        private List<string> cloudTypes = new List<string>() { "SKC", "FEW", "SCT", "BKN", "OCV" };
+        // Regexes
+        private static string icaoCode = "^[A-Z]{4}$";
+        private static string dayTime = "([0-9]{2})([0-9]{2})([0-9]{2})Z";
+        private static string wind = "([0-9]{3}|VRB)([0-9]{2,3})G?([0-9]{2,3})?(KT)";
+        private static string visibility = "([0-9]{2,3,4})?(SM)";
+        private static string weather = "^(VC)?(-|\\+)?(MI|PR|BC|DR|BL|SH|TS|FZ)?((DZ|RA|SN|SG|IC|PL|GR|GS|UP)+)?(BR|FG|FU|VA|DU|SA|HZ|PY)?(PO|SQ|FC|SS)?$";
+        private static string cloudInfo = "^(VV|FEW|SCT|SKC|CLR||BKN|OVC)([0-9]{3}|///)(CU|CB|TCU|CI)?$";
+        private static string tempAndDewPt = "^(M?[0-9]{2})/(M?[0-9]{2})?$";
+        private static string altimiter = "A([0-9]{4})";
 
         public METAR ProcessMetar(string data)
         {
@@ -13,130 +23,138 @@ namespace METARdecode
 
             List<string> blocks = data.Split(' ').ToList();
 
-            if (isError(blocks, out string errMsg))
+            // If starts with METAR, just strip it off.
+            if (blocks[0] == "METAR")
+                blocks.RemoveAt(0);
+
+            foreach (string block in blocks)
             {
-                Console.WriteLine($"Error: {errMsg}");
-                return metar;
-            }
+                // ICAO Airport Code
+                Regex regex = new Regex(icaoCode);
+                Match regexMatch = regex.Match(block);
 
-            // Block 0 - METAR
-
-            // Block 1 - ICAO Code
-            metar.IcaoCode = blocks[1];
-
-            // Block 2 - UTC DateTime (DDTTTTZ)
-            parseDateTime(metar, blocks[2]);
-
-            // Block 3 - Optional - May be AUTO or COR
-            if (blocks[3] == "AUTO" || blocks[3] == "COR")
-                blocks.RemoveAt(3);
-
-            // Block 3 - Wind Speed (WWWDDGWWKT)
-            parseWindSpeed(metar, blocks[3]);
-
-            // Block 4 - Optional - Variable wind direction (DDDVDDD)
-            if (blocks[4].Contains("V"))
-            {
-                metar.VariableWindDirections = blocks[4];
-                blocks.RemoveAt(4);
-            }
-
-            // Block 4 - Visibility
-            metar.Visibility = blocks[4];
-
-            // Block 5 - Optional - Runway visual range
-            if (blocks[5].EndsWith("FT"))
-            {
-                parseRunwayVisualRange(metar, blocks[5]);
-                blocks.RemoveAt(5);
-            }
-
-            // Block 5 - Weather Codes OR cloud cover
-            if (cloudTypes.Any(s => blocks[5].Contains(s)))
-            {
-                // clouds
-                metar.Clouds = blocks[5];
-            }
-            else
-            {
-                // weather codes
-                metar.WeatherCodes = blocks[5];
-            }
-
-            // Block 6 - Optional - Still may be cloud codes if 5 was weather codes...
-            if (!string.IsNullOrEmpty(metar.WeatherCodes) && !blocks[6].Contains("/"))
-            {
-                metar.Clouds = blocks[6];
-                blocks.RemoveAt(6);
-            }
-
-            // Block 7 - Temperature and dew point.
-            parseTempDewPoint(metar, blocks[6]);
-
-            // Block 8 - Altimeter setting
-            metar.Altimeter = blocks[7];
-
-            // The rest - remarks
-            if (blocks[8] == "RMK")
-            {
-                metar.Remarks = new List<string>();
-
-                for (int i = 8; i < blocks.Count; i++)
+                if (regexMatch.Success)
                 {
-                    metar.Remarks.Add(blocks[i]);
+                    Console.WriteLine($"Found ICAO Code: {block}");
+                    metar.IcaoCode = block;
+                    continue;
+                }
+
+                // UTC Day and Time
+                regex = new Regex(dayTime);
+                regexMatch = regex.Match(block);
+
+                if (regexMatch.Success)
+                {
+                    Console.WriteLine($"Found Day and Time: {block}");
+                    metar.Day = block.Substring(0, 2);
+                    string parsedTime = block.Substring(2, 4);
+                    metar.Time = DateTime.ParseExact(parsedTime, "HHmm", null).TimeOfDay;
+
+                    continue;
+                }
+
+                // Wind Direction/Speed. Optional Gust Speed.
+                regex = new Regex(wind);
+                regexMatch = regex.Match(block);
+
+                if (regexMatch.Success)
+                {
+                    Console.WriteLine($"Found Wind: {block}");
+                    metar.WindDirection = block.Substring(0, 3);
+                    metar.WindSpeed = block.Substring(2, 2);
+
+                    if (block.Contains("G"))
+                        metar.GustSpeed = block.Substring(6, 2);
+
+                    continue;
+                }
+
+                // Visibility
+                regex = new Regex(visibility);
+                regexMatch = regex.Match(block);
+
+                if (regexMatch.Success)
+                {
+                    Console.WriteLine($"Found Visibility: {block}");
+                    metar.Visibility = block;
+
+                    continue;
+                }
+
+                // Weather Comments
+                regex = new Regex(weather);
+                regexMatch = regex.Match(block);
+
+                if (regexMatch.Success)
+                {
+                    Console.WriteLine($"Found Weather: {block}");
+                    metar.WeatherCodes = block;
+
+                    continue;
+                }
+
+                // Cloud Details
+                regex = new Regex(cloudInfo);
+                regexMatch = regex.Match(block);
+
+                if (metar.Clouds == null)
+                    metar.Clouds = new List<string>();
+
+                if (regexMatch.Success)
+                {
+                    Console.WriteLine($"Found Cloud Details: {block}");
+                    metar.Clouds.Add(block);
+
+                    continue;
+                }
+
+                // Temperature and Dew Point
+                regex = new Regex(tempAndDewPt);
+                regexMatch = regex.Match(block);
+
+                if (regexMatch.Success)
+                {
+                    Console.WriteLine($"Found Temperature and Dew Point: {block}");
+                    string[] parts = block.Split('/');
+                    metar.Temperature = parts[0];
+                    metar.Dewpoint = parts[1];
+
+                    continue;
+                }
+
+                // Altimiter Setting
+                regex = new Regex(altimiter);
+                regexMatch = regex.Match(block);
+
+                if (regexMatch.Success)
+                {
+                    Console.WriteLine($"Found Altimier Setting: {block}");
+                    metar.Altimeter = block;
+
+                    continue;
                 }
             }
 
+            // Parse any Remarks
+
+            if (data.Contains("RMK"))
+            {
+                string remarks = data.Split("RMK ")[1];
+                string[] remarkArray = remarks.Split(' ');
+
+                if (metar.Remarks == null)
+                    metar.Remarks = new List<string>();
+
+                foreach (string remark in remarkArray)
+                {
+                    Console.WriteLine($"Found Remark: {remark}");
+                    metar.Remarks.Add(remark);
+                }
+            }
+
+
             return metar;
-        }
-
-        private void parseTempDewPoint(METAR metar, string tempBlock)
-        {
-            string[] parts = tempBlock.Split('/');
-            metar.Temperature = parts[0];
-            metar.Dewpoint = parts[1];
-        }
-
-        private void parseRunwayVisualRange(METAR metar, string rvrBlock)
-        {
-            metar.Runway = rvrBlock.Substring(0, 4);
-            metar.RunwayRange = rvrBlock.Substring(3);
-        }
-
-        private void parseWindSpeed(METAR metar, string windSpeedBlock)
-        {
-            metar.WindDirection = windSpeedBlock.Substring(0, 3);
-            metar.WindSpeed = windSpeedBlock.Substring(2, 2);
-
-            if (windSpeedBlock.Contains("G"))
-            {
-                metar.GustSpeed = windSpeedBlock.Substring(6, 2);
-            }
-        }
-
-        private void parseDateTime(METAR metar, string dateTimeBlock)
-        {
-            metar.Day = dateTimeBlock.Substring(0, 2);
-            string parsedTime = dateTimeBlock.Substring(2, 4);
-            metar.Time = DateTime.ParseExact(parsedTime, "HHmm", null).TimeOfDay;
-        }
-
-        private bool isError(List<string> blocks, out string errMsg)
-        {
-            if (blocks[0] != "METAR")
-            {
-                errMsg = "Invalid METAR string. Please check input. Did you put it in double quotes?";
-                return true;
-            }
-
-            if (blocks.Count < 10)
-            {
-                errMsg = "Invalid METAR string. Not enough elements. Is this a METAR?";
-                return true;
-            }
-
-            errMsg = string.Empty;
-            return false;
         }
     }
 }

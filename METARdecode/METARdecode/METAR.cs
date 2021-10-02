@@ -15,7 +15,7 @@ namespace METARdecode
         public string Runway { get; set; }
         public string RunwayRange { get; set; }
         public string WeatherCodes { get; set; }
-        public string Clouds { get; set; }
+        public List<string> Clouds { get; set; }
         public string Temperature { get; set; }
         public string Dewpoint { get; set; }
         public string Altimeter { get; set; }
