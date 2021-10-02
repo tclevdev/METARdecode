@@ -9,7 +9,10 @@ If the ICAO code is supplied, the METAR string will be retrieved from the AVWX (
 Input:
 
 ```
+Using existing METAR string:
 METARdecode "KAUS 021553Z 09004KT 10SM SCT013 BKN027 OVC250 24/22 A3008 RMK AO2 SLP178 T02440217"
+
+Using ICAO airport code:
 METARdecode KAUS
 ```
 
