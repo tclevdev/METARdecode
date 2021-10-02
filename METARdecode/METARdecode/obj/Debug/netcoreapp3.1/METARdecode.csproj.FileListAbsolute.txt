@@ -11,3 +11,5 @@
 /Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.dll
 /Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.pdb
 /Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.genruntimeconfig.cache
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/bin/Debug/netcoreapp3.1/Newtonsoft.Json.dll
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.csproj.CopyComplete

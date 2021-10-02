@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "JqmExLUJ5Wv5Rs5ogckJ3nxyb6wcMDj0wo40wQ2IGjJd0SSzmAmgWRCQz2tHHF9jx2Ww5E3rgdXqrGHmSFoLQA==",
+  "dgSpecHash": "83+GsPqpppXceoe9pjYSDcKL/31CGcoXjpzNsEZfnV85AuSowY2dC0t4B8RA1zBLsS1uB69JBquq5AqLOQ69uQ==",
   "success": true,
   "projectFilePath": "/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/METARdecode.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/tonyc/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
   "logs": []
 }
