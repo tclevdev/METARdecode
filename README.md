@@ -2,12 +2,18 @@
 
 METARdecode is a simple command line .NET core application to decode METeorological Aerodrome Reports (METARs). METAR is a format for providing weather information in aviation.
 
-METARdecode can decode any USA METAR by simplying supplying the METAR as an argument via command line. A report will be displayed of the details.
+METARdecode can decode any USA METAR by simplying supplying the ICAO Code or METAR string as an argument via command line. A report will be displayed of the details.
+
+If the ICAO code is supplied, the METAR string will be retrieved from the AVWX (https://avwx.rest) API.
 
 Input:
 
 ```
+Using existing METAR string:
 METARdecode "KAUS 021553Z 09004KT 10SM SCT013 BKN027 OVC250 24/22 A3008 RMK AO2 SLP178 T02440217"
+
+Using ICAO airport code:
+METARdecode KAUS
 ```
 
 Output:
