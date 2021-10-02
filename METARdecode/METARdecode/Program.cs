@@ -34,17 +34,17 @@ namespace METARdecode
             Decoder decoder = new Decoder();
             METAR metar = new METAR();
 
-            //if (args[0].Length == 4)
-            //{
-                // Just an ICAO Code, look up the METAR via AVWX API
-                string rawMetar = GetMetar("KSFO");
+            if (args[0].Length == 4)
+            {
+                //Just an ICAO Code, look up the METAR via AVWX API
+                string rawMetar = GetMetar(args[0]);
                 metar = decoder.ProcessMetar(rawMetar);
-            //}
-            //else
-            //{
+            }
+            else
+            {
                 // Use command line argument
-            //    metar = decoder.ProcessMetar(args[0]);
-            //}
+              metar = decoder.ProcessMetar(args[0]);
+            }
 
             string report = decoder.BuildReport(metar);
 
