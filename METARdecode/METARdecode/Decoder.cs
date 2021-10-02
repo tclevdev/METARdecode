@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace METARdecode
 {
@@ -16,6 +17,60 @@ namespace METARdecode
         private static string cloudInfo = "^(VV|FEW|SCT|SKC|CLR||BKN|OVC)([0-9]{3}|///)(CU|CB|TCU|CI)?$";
         private static string tempAndDewPt = "^(M?[0-9]{2})/(M?[0-9]{2})?$";
         private static string altimiter = "A([0-9]{4})";
+
+        public string BuildReport(METAR metar)
+        {
+            StringBuilder report = new StringBuilder();
+            report.AppendLine("---------- METAR Report ----------");
+            report.AppendLine();
+            report.AppendLine($"ICAO Code: {metar.IcaoCode}");
+            report.AppendLine($"Day of Month: {metar.Day}");
+            report.AppendLine($"Time: {metar.Time} Zulu");
+            report.AppendLine($"Wind Direction: {metar.WindDirection} Degrees");
+            report.AppendLine($"Wind Speed: {metar.WindSpeed} KTs");
+
+            if (!string.IsNullOrEmpty(metar.GustSpeed))
+                report.AppendLine($"Wind Gust Speed: {metar.GustSpeed}");
+
+            report.AppendLine($"Visibility: {metar.Visibility.Replace("SM", " Statute Miles")}");
+
+            if (metar.WeatherCodes != null && metar.WeatherCodes.Any())
+            {
+                report.Append("Weather Codes: ");
+                foreach (string wCode in metar.WeatherCodes)
+                {
+                    report.Append(wCode + " ");
+                }
+                report.AppendLine();
+            }
+
+            if (metar.Clouds != null && metar.Clouds.Any())
+            {
+                report.Append("Cloud Information: ");
+                foreach (string cCode in metar.Clouds)
+                {
+                    string converted = cCode.Replace("FEW", "Few ").Replace("SCT", "Scattered ").Replace("BKN", "Broken ").Replace("OVC", "Overcast ");                  
+                    report.Append(converted + "00 FT ");
+                }
+                report.AppendLine();
+            }
+
+            report.AppendLine($"Temperature: {metar.Temperature} C");
+            report.AppendLine($"Dew Point: {metar.Dewpoint} C");
+            report.AppendLine($"Altimiter: {metar.Altimeter.Replace("A","").Insert(2,".")} Hg");
+
+            if (metar.Remarks != null && metar.Remarks.Any())
+            {
+                report.Append("Remarks: ");
+                foreach (string r in metar.Remarks)
+                {
+                    report.Append(r + " ");
+                }
+                report.AppendLine();
+            }
+
+            return report.ToString();
+        }
 
         public METAR ProcessMetar(string data)
         {
@@ -35,7 +90,6 @@ namespace METARdecode
 
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found ICAO Code: {block}");
                     metar.IcaoCode = block;
                     continue;
                 }
@@ -46,7 +100,6 @@ namespace METARdecode
 
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found Day and Time: {block}");
                     metar.Day = block.Substring(0, 2);
                     string parsedTime = block.Substring(2, 4);
                     metar.Time = DateTime.ParseExact(parsedTime, "HHmm", null).TimeOfDay;
@@ -60,7 +113,6 @@ namespace METARdecode
 
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found Wind: {block}");
                     metar.WindDirection = block.Substring(0, 3);
                     metar.WindSpeed = block.Substring(2, 2);
 
@@ -76,7 +128,6 @@ namespace METARdecode
 
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found Visibility: {block}");
                     metar.Visibility = block;
 
                     continue;
@@ -86,10 +137,12 @@ namespace METARdecode
                 regex = new Regex(weather);
                 regexMatch = regex.Match(block);
 
+                if (metar.WeatherCodes == null)
+                    metar.WeatherCodes = new List<string>();
+
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found Weather: {block}");
-                    metar.WeatherCodes = block;
+                    metar.WeatherCodes.Add(block);
 
                     continue;
                 }
@@ -103,7 +156,6 @@ namespace METARdecode
 
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found Cloud Details: {block}");
                     metar.Clouds.Add(block);
 
                     continue;
@@ -115,7 +167,6 @@ namespace METARdecode
 
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found Temperature and Dew Point: {block}");
                     string[] parts = block.Split('/');
                     metar.Temperature = parts[0];
                     metar.Dewpoint = parts[1];
@@ -129,7 +180,6 @@ namespace METARdecode
 
                 if (regexMatch.Success)
                 {
-                    Console.WriteLine($"Found Altimier Setting: {block}");
                     metar.Altimeter = block;
 
                     continue;
@@ -148,7 +198,6 @@ namespace METARdecode
 
                 foreach (string remark in remarkArray)
                 {
-                    Console.WriteLine($"Found Remark: {remark}");
                     metar.Remarks.Add(remark);
                 }
             }
