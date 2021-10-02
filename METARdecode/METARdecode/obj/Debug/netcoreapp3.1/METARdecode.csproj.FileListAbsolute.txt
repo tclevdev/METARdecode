@@ -1,0 +1,13 @@
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/bin/Debug/netcoreapp3.1/METARdecode.deps.json
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/bin/Debug/netcoreapp3.1/METARdecode.runtimeconfig.json
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/bin/Debug/netcoreapp3.1/METARdecode.runtimeconfig.dev.json
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/bin/Debug/netcoreapp3.1/METARdecode.dll
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/bin/Debug/netcoreapp3.1/METARdecode.pdb
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.csproj.AssemblyReference.cache
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.AssemblyInfoInputs.cache
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.AssemblyInfo.cs
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.csproj.CoreCompileInputs.cache
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.dll
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.pdb
+/Users/tonyc/Documents/GitHub/METARdecode/METARdecode/METARdecode/obj/Debug/netcoreapp3.1/METARdecode.genruntimeconfig.cache
